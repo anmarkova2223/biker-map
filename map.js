@@ -74,6 +74,9 @@ const map = new mapboxgl.Map({
 const svg = d3.select('#map').select('svg');
 let stations = [];
 let circles;
+let results;
+let departuresByMinute = Array.from({ length: 1440 }, () => []);
+let arrivalsByMinute = Array.from({ length: 1440 }, () => []);
 
 function getCoords(station) {
   const point = new mapboxgl.LngLat(+station.lon, +station.lat);  // Convert lon/lat to Mapbox LngLat
@@ -87,10 +90,6 @@ function updatePositions() {
     .attr('cx', d => getCoords(d).cx)  // Set the x-position using projected coordinates
     .attr('cy', d => getCoords(d).cy); // Set the y-position using projected coordinates
 }
-
-let results;
-let departuresByMinute = Array.from({ length: 1440 }, () => []);
-let arrivalsByMinute = Array.from({ length: 1440 }, () => []);
 
 map.on('load', () => {
   // Load the nested JSON file
@@ -134,7 +133,7 @@ map.on('load', () => {
     let radiusScale = d3
       .scaleSqrt()
       .domain([0, d3.max(stations, (d) => d.totalTraffic)])
-      .range([timeFilter === -1 ? 0: 3, timeFilter === -1? 25: 50]);
+      .range([0, 25]);
     console.log('Loaded CSV Data:', trips);
     console.log('Stations Array:', stations);
     //moved from the previous map.on('load') function, I have no clue if this was intended.
@@ -164,7 +163,7 @@ map.on('load', () => {
   });
 });
 
-  // Reposition markers on map interactions
+// Reposition markers on map interactions
 map.on('move', updatePositions);     // Update during map movement
 map.on('zoom', updatePositions);     // Update during zooming
 map.on('resize', updatePositions);   // Update on window resize
@@ -221,19 +220,19 @@ function filterTripsByTime() {
         );
       });
   filteredArrivals = 
-  // filterByMinute(arrivalsByMinute, timeFilter)
-  d3.rollup(
-    filteredTrips,
-    (v) => v.length,
-    (d) => d.end_station_id
-  );
+  filterByMinute(arrivalsByMinute, timeFilter)
+  // d3.rollup(
+  //   filteredTrips,
+  //   (v) => v.length,
+  //   (d) => d.end_station_id
+  // );
   filteredDepartures = 
-  // filterByMinute(departuresByMinute, timeFilter)
-  d3.rollup(
-    filteredTrips,
-    (v) => v.length,
-    (d) => d.start_station_id
-  );
+  filterByMinute(departuresByMinute, timeFilter)
+  // d3.rollup(
+  //   filteredTrips,
+  //   (v) => v.length,
+  //   (d) => d.start_station_id
+  // );
   filteredStations = stations.map(station => {
       let station_copy = {...station};
       let id = station.short_name;
