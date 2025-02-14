@@ -39,7 +39,7 @@ const map = new mapboxgl.Map({
 
   map.addSource('boston_route', {
     type: 'geojson',
-    data: 'Existing_Bike_Network_2022.geojson'
+    data: './Existing_Bike_Network_2022.geojson'
   });
   
   map.addSource('cambridge_route', {
@@ -220,19 +220,19 @@ function filterTripsByTime() {
         );
       });
   filteredArrivals = 
-  filterByMinute(arrivalsByMinute, timeFilter)
-  // d3.rollup(
-  //   filteredTrips,
-  //   (v) => v.length,
-  //   (d) => d.end_station_id
-  // );
+  // filterByMinute(arrivalsByMinute, timeFilter)
+  d3.rollup(
+    filteredTrips,
+    (v) => v.length,
+    (d) => d.end_station_id
+  );
   filteredDepartures = 
-  filterByMinute(departuresByMinute, timeFilter)
-  // d3.rollup(
-  //   filteredTrips,
-  //   (v) => v.length,
-  //   (d) => d.start_station_id
-  // );
+  // filterByMinute(departuresByMinute, timeFilter)
+  d3.rollup(
+    filteredTrips,
+    (v) => v.length,
+    (d) => d.start_station_id
+  );
   filteredStations = stations.map(station => {
       let station_copy = {...station};
       let id = station.short_name;
